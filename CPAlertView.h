@@ -13,7 +13,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 typedef NS_ENUM(NSUInteger, CPAlertStyle) {
     CPAlertStyleSheet = UIAlertControllerStyleActionSheet,
-    CPAlertStyleNormal = UIAlertControllerStyleAlert,
+    CPAlertStyleDefault = UIAlertControllerStyleAlert,
 };
 @class CPAlertView;
 @protocol CPAlertViewDelegate <NSObject>
@@ -22,7 +22,10 @@ typedef NS_ENUM(NSUInteger, CPAlertStyle) {
 - (void)alertView:(CPAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex;
 @end
 
-@interface CPAlertView : NSObject
+NS_CLASS_AVAILABLE_IOS(8_0) @interface CPAlertView : NSObject
+
+- (instancetype)init UNAVAILABLE_ATTRIBUTE;
++ (instancetype)new UNAVAILABLE_ATTRIBUTE;
 
 
 /**
@@ -39,7 +42,7 @@ typedef NS_ENUM(NSUInteger, CPAlertStyle) {
 - (instancetype)initWithTitle:(nullable NSString *)title
                       message:(nullable NSString *)message
                         style:(CPAlertStyle)alertStyle
-                     delegate:(UIViewController<CPAlertViewDelegate>*)delegate
+                     delegate:(nonnull UIViewController<CPAlertViewDelegate>*)delegate
                   cancelTitle:(nullable NSString *)cancelTitle
                   otherTitles:(nullable NSString *)otherTitles, ... NS_REQUIRES_NIL_TERMINATION;
 
@@ -52,21 +55,27 @@ typedef NS_ENUM(NSUInteger, CPAlertStyle) {
  @param alertStyle :CPAlertStyle
  @param delegate :must be UIViewController
  @param cancelTitle :cancelTitle
- @param otherTitles :otherTitles
+ @param otherTitle :otherTitle
  @param handler other handler block
- @return instance
  */
-+ (instancetype)alertWithTitle:(nullable NSString *)title
++ (void)showWithTitle:(nullable NSString *)title
                        message:(nullable NSString *)message
                          style:(CPAlertStyle)alertStyle
-                      delegate:(UIViewController<CPAlertViewDelegate>*)delegate
+                      delegate:(nonnull UIViewController<CPAlertViewDelegate>*)delegate
                    cancelTitle:(nullable NSString *)cancelTitle
                     otherTitle:(nullable NSString *)otherTitle
-                  otherHandler:(void (^)(void))handler;
+                  otherHandler:(nullable void (^)(void))handler;
 /**
  alertView show
  */
 - (void)show;
+
+/**
+ add textField
+
+ @param configurationHandler : configuration textField handler
+ */
+- (void)addTextFieldWithConfigurationHandler:(void (^ __nullable)(UITextField *textField))configurationHandler;
 
 @end
 

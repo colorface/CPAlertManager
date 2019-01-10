@@ -22,15 +22,17 @@ typedef void(^CPAlertViewHandler)(UIAlertAction *);
 - (instancetype)initWithTitle:(nullable NSString *)title
                       message:(nullable NSString *)message
                         style:(CPAlertStyle)alertStyle
-                     delegate:(UIViewController<CPAlertViewDelegate>*)delegate
+                     delegate:(nonnull UIViewController<CPAlertViewDelegate>*)delegate
                   cancelTitle:(nullable NSString *)cancelTitle
                   otherTitles:(nullable NSString *)otherTitles, ... NS_REQUIRES_NIL_TERMINATION {
+    
     NSAssert(delegate, @"delegate is must be not nil");
     
     self = [super init];
     if(!self) return nil;
     
     self.delegate = delegate;
+    self.style = alertStyle;
     UIAlertControllerStyle style = (UIAlertControllerStyle)alertStyle;
     UIAlertController *alertController = [UIAlertController alertControllerWithTitle:title
                                                                              message:message preferredStyle:style];
@@ -53,16 +55,15 @@ typedef void(^CPAlertViewHandler)(UIAlertAction *);
         while ((eachObject = va_arg(argumentList, NSString *)))
             [self.otherButtonTitles addObject:eachObject];
         va_end(argumentList);
+        
+        [self setupOtherButtonActions];
     }
     
-    [self setupActions];
     return self;
 }
 
-- (void)setupActions {
-    if (!self.otherButtonTitles.count) {
-        return;
-    }
+- (void)setupOtherButtonActions {
+    
     NSUInteger count = self.otherButtonTitles.count;
     
     if (count) {
@@ -83,13 +84,13 @@ typedef void(^CPAlertViewHandler)(UIAlertAction *);
     }
 }
 
-+ (instancetype)alertWithTitle:(nullable NSString *)title
++ (void)showWithTitle:(nullable NSString *)title
                        message:(nullable NSString *)message
                          style:(CPAlertStyle)alertStyle
-                      delegate:(UIViewController<CPAlertViewDelegate>*)delegate
+                      delegate:(nonnull UIViewController<CPAlertViewDelegate>*)delegate
                    cancelTitle:(nullable NSString *)cancelTitle
                     otherTitle:(nullable NSString *)otherTitle
-                  otherHandler:(void (^)(void))handler {
+                  otherHandler:(nullable void (^)(void))handler {
     
     
     CPAlertView *alertView = [[CPAlertView alloc] initWithTitle:title
@@ -99,20 +100,26 @@ typedef void(^CPAlertViewHandler)(UIAlertAction *);
                                                     cancelTitle:cancelTitle
                                                     otherTitles:nil];
     if (handler) {
-        
+        [handler copy];
         UIAlertAction *action = [UIAlertAction actionWithTitle:otherTitle
                                                          style:UIAlertActionStyleDefault
                                                        handler:^(UIAlertAction * _Nonnull action) {
                                                            handler();
+                                                           [alertView disappear];
                                                        }];
         [alertView.alertController addAction:action];
     }
     
     [alertView show];
     
-    return alertView;
+}
+
+- (void)addTextFieldWithConfigurationHandler:(void (^)(UITextField * _Nonnull))configurationHandler {
     
-    
+    if (self.style) {
+        [self.alertController addTextFieldWithConfigurationHandler:configurationHandler];
+    }
+   
 }
 
 - (void)show {
@@ -125,6 +132,8 @@ typedef void(^CPAlertViewHandler)(UIAlertAction *);
 
 - (void)disappear {
     
+    [self.otherButtonTitles removeAllObjects];
+    self.otherButtonTitles = nil;
     [self.alertController dismissViewControllerAnimated:YES completion:nil];
 }
 
@@ -138,7 +147,6 @@ typedef void(^CPAlertViewHandler)(UIAlertAction *);
 }
 
 - (void)dealloc {
-    
     NSLog(@"%s",__FUNCTION__);
 }
 
