@@ -2,6 +2,7 @@
 Wrapper of UIAlertController with  UIAlertAction using block and delegate
 
 // usage Example 1：
+
     // step 1 : 引入#import "CPAlertManager.h"
     // step 2 : 遵循 CPAlertManagerDelegate 协议，建议在扩展分类里使用
     // step 3 :
@@ -17,7 +18,8 @@ Wrapper of UIAlertController with  UIAlertAction using block and delegate
     
     // setp 4 : 实现可选协议方法
     
-    // usage Example 2:
+// usage Example 2:
+    
     [CPAlertManager showWithTitle:@"123" message:nil style:CPAlertStyleSheet delegate:self cancelTitle:nil otherTitle:@"OK" otherHandler:^{
         // code you need handler after click 'OK'
         // you should use self, not weakSelf
